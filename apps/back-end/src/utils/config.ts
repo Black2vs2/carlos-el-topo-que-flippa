@@ -2,6 +2,7 @@ export const qualitiesName = ['Normal', 'Good', 'Outstanding', 'Excellent', 'Mas
 export const mostUsedLocations = [
   // { index: 4301, name: "FortSterlingPortal" },
   // { index: 4002, name: "FortSterlingCity" },
+  { index: 5003, name: 'Brecilien' },
   { index: 3005, name: 'CarleonCity' },
   { index: 3003, name: 'CarleonBlackMarket' },
 ];

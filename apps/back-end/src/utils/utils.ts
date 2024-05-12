@@ -2,7 +2,7 @@ import { IngestOrderRequest } from '@custom-types/AOData';
 import { OrderWithKey, ProfitableComparableOrders, ProfitableOrders } from '@custom-types/DTO';
 import { AuctionTypes } from './config';
 import { SimplifiedItem } from '@custom-types/builder.types';
-import * as parsed_items from '../generated/parsed_items.json';
+import parsed_items from '../generated/parsed_items.json';
 const parsedItems = parsed_items as SimplifiedItem[];
 
 const mapOrder = (order: IngestOrderRequest): OrderWithKey => ({
@@ -58,6 +58,7 @@ const getOrderKey = (order: IngestOrderRequest) => `${order.AuctionType}.${order
 export const mapProfitableComparisonOrdersToObject = (
   profitableComparableOrders: Map<string, ProfitableComparableOrders>
 ): ProfitableOrders[] => {
+  console.log(typeof parsedItems);
   return Array.from(profitableComparableOrders.entries()).map(([key, value]) => ({
     ...value,
     Key: key,
