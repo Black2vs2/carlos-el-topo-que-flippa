@@ -5,5 +5,11 @@
   "projectType": "application",
   "tags": [],
   "// targets": "to see all targets run: nx show project front-end --web",
-  "targets": {}
+  "targets": {
+    "serve": {
+      "options": {
+        "port": 5173
+      }
+    }
+  }
 }

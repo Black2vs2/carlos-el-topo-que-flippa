@@ -1,0 +1,19 @@
+.table-header-row-cell {
+  min-width: 80px;
+  font-weight: "600";
+}
+
+.table-row > * {
+  border-left: 1px solid rgba(150, 150, 150, 0.2);
+  border-right: 1px solid rgba(150, 150, 150, 0.2);
+}
+
+.profit {
+  background: #eefae3;
+}
+.buy {
+  background: #e6f4f5;
+}
+.sell {
+  background: #ffede0;
+}
