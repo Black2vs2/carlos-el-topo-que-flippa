@@ -67,6 +67,11 @@ function App() {
   //     socket.off("orders", onOrdersEvent);
   //   };
   // }, []);
+  /**
+   * Add clear last X hours
+   * Add possibility to compare prices in cities for materials
+   * 
+   */
 
   return (
     <>
