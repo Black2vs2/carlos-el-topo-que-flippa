@@ -31,7 +31,7 @@ export default function ZoneHistoryPanel() {
 
   if (zoneHistory.length === 0) {
     return (
-      <Paper sx={{ p: 2, bgcolor: 'rgba(30,30,45,0.6)', borderRadius: 2 }}>
+      <Paper sx={{ p: 2, bgcolor: 'background.paper', borderRadius: 2 }}>
         <Typography variant="subtitle1" fontWeight={600} mb={1}>
           Zone History
         </Typography>
@@ -43,7 +43,7 @@ export default function ZoneHistoryPanel() {
   }
 
   return (
-    <Paper sx={{ p: 2, bgcolor: 'rgba(30,30,45,0.6)', borderRadius: 2, maxHeight: 400, overflow: 'auto' }}>
+    <Paper sx={{ p: 2, bgcolor: 'background.paper', borderRadius: 2, maxHeight: 400, overflow: 'auto' }}>
       <Typography variant="subtitle1" fontWeight={600} mb={1}>
         Zone History
       </Typography>
@@ -64,7 +64,7 @@ export default function ZoneHistoryPanel() {
                   {ic.alt}
                 </span>
               ))}
-            <Typography variant="caption" sx={{ color: 'rgba(255,255,255,0.4)', ml: 'auto', whiteSpace: 'nowrap' }}>
+            <Typography variant="caption" sx={{ color: 'text.secondary', ml: 'auto', whiteSpace: 'nowrap' }}>
               {timeAgo(entry.timestamp)}
             </Typography>
           </Box>

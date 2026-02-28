@@ -21,7 +21,7 @@
   border-radius: 12px;
   padding: 24px;
   margin-bottom: 16px;
-  background: rgba(30, 30, 45, 0.6);
+  background: #1a1a2e;
   border: 1px solid rgba(100, 100, 140, 0.3);
   transition: all 0.3s ease;
 }

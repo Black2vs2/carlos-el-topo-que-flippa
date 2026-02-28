@@ -58,7 +58,7 @@ export default function AvalonRoadsPage() {
         onClose={() => setGoldenAlert(null)}
         anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
       >
-        <Alert severity="warning" variant="filled" onClose={() => setGoldenAlert(null)} sx={{ bgcolor: '#b8860b' }}>
+        <Alert severity="warning" variant="filled" onClose={() => setGoldenAlert(null)} sx={{ bgcolor: '#a67c00' }}>
           Golden Chest Zone: {goldenAlert?.name} (T{goldenAlert?.tier})
         </Alert>
       </Snackbar>

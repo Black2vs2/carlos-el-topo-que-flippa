@@ -6,8 +6,8 @@
 }
 
 .table-row > * {
-  border-left: 1px solid rgba(150, 150, 150, 0.2);
-  border-right: 1px solid rgba(150, 150, 150, 0.2);
+  border-left: 1px solid rgba(100, 100, 140, 0.2);
+  border-right: 1px solid rgba(100, 100, 140, 0.2);
 }
 
 .number {
@@ -17,11 +17,11 @@
 }
 
 .profit {
-  background: #eefae3;
+  background: rgba(76, 175, 80, 0.12);
 }
 .buy {
-  background: #e6f4f5;
+  background: rgba(33, 150, 243, 0.1);
 }
 .sell {
-  background: #ffede0;
+  background: rgba(255, 152, 0, 0.1);
 }

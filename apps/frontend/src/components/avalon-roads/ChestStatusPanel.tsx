@@ -25,7 +25,7 @@ export default function ChestStatusPanel() {
   const { activeChests } = useAvalonStore();
 
   return (
-    <Paper sx={{ p: 2, bgcolor: 'rgba(30,30,45,0.6)', borderRadius: 2 }}>
+    <Paper sx={{ p: 2, bgcolor: 'background.paper', borderRadius: 2 }}>
       <Typography variant="subtitle1" fontWeight={600} mb={1}>
         Chest Status
       </Typography>
@@ -41,7 +41,7 @@ export default function ChestStatusPanel() {
               display="flex"
               alignItems="center"
               gap={1}
-              sx={{ p: 1, borderRadius: 1, bgcolor: 'rgba(255,255,255,0.03)' }}
+              sx={{ p: 1, borderRadius: 1, bgcolor: 'rgba(255, 255, 255, 0.04)' }}
             >
               <span className={`icon-badge ${getChestTypeIcon(chest.chestType)}`}>{chest.chestType}</span>
               <Typography variant="body2" sx={{ flex: 1 }}>

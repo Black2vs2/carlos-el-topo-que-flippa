@@ -22,7 +22,7 @@ export default function PortalActivityPanel() {
   const { portals } = useAvalonStore();
 
   return (
-    <Paper sx={{ p: 2, bgcolor: 'rgba(30,30,45,0.6)', borderRadius: 2 }}>
+    <Paper sx={{ p: 2, bgcolor: 'background.paper', borderRadius: 2 }}>
       <Typography variant="subtitle1" fontWeight={600} mb={1}>
         Portal Activity
       </Typography>
@@ -35,22 +35,22 @@ export default function PortalActivityPanel() {
           <Table size="small">
             <TableHead>
               <TableRow>
-                <TableCell sx={{ color: 'rgba(255,255,255,0.6)', borderBottom: '1px solid rgba(100,100,140,0.2)' }}>Zone</TableCell>
-                <TableCell sx={{ color: 'rgba(255,255,255,0.6)', borderBottom: '1px solid rgba(100,100,140,0.2)' }}>Players</TableCell>
-                <TableCell sx={{ color: 'rgba(255,255,255,0.6)', borderBottom: '1px solid rgba(100,100,140,0.2)' }}>Last Seen</TableCell>
+                <TableCell sx={{ color: 'text.secondary', borderBottom: '1px solid rgba(100, 100, 140, 0.2)' }}>Zone</TableCell>
+                <TableCell sx={{ color: 'text.secondary', borderBottom: '1px solid rgba(100, 100, 140, 0.2)' }}>Players</TableCell>
+                <TableCell sx={{ color: 'text.secondary', borderBottom: '1px solid rgba(100, 100, 140, 0.2)' }}>Last Seen</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
               {portals.map((portal) => (
                 <TableRow key={portal.id}>
-                  <TableCell sx={{ borderBottom: '1px solid rgba(100,100,140,0.1)' }}>
+                  <TableCell sx={{ borderBottom: '1px solid rgba(100, 100, 140, 0.15)' }}>
                     {portal.zoneName}
                   </TableCell>
-                  <TableCell sx={{ borderBottom: '1px solid rgba(100,100,140,0.1)' }}>
+                  <TableCell sx={{ borderBottom: '1px solid rgba(100, 100, 140, 0.15)' }}>
                     <span className={`portal-indicator ${getPortalDangerClass(portal.playerCount)}`} />
                     {portal.playerCount} {portal.playerCount === 1 ? 'player' : 'players'} in last 5 min
                   </TableCell>
-                  <TableCell sx={{ borderBottom: '1px solid rgba(100,100,140,0.1)', color: 'rgba(255,255,255,0.4)' }}>
+                  <TableCell sx={{ borderBottom: '1px solid rgba(100, 100, 140, 0.15)', color: 'text.secondary' }}>
                     {timeAgo(portal.lastSeen)}
                   </TableCell>
                 </TableRow>
