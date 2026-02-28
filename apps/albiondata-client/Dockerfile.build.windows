@@ -13,4 +13,4 @@ RUN GOOS=windows GOARCH=amd64 go build \
     albiondata-client.go
 
 FROM scratch
-COPY --from=builder /out/albiondata-client.exe /out/albiondata-client.exe
+COPY --from=builder /out/albiondata-client.exe /albiondata-client.exe

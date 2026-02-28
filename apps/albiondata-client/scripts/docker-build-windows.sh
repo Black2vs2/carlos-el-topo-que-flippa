@@ -11,10 +11,9 @@ echo "==> Building albiondata-client.exe via Docker..."
 
 mkdir -p "$OUTPUT_DIR"
 
-docker build -t "$IMAGE_NAME" -f "$PROJECT_DIR/Dockerfile.build.windows" "$PROJECT_DIR"
-
-CONTAINER_ID=$(docker create "$IMAGE_NAME")
-docker cp "$CONTAINER_ID:/out/albiondata-client.exe" "$OUTPUT_DIR/albiondata-client.exe"
-docker rm "$CONTAINER_ID" > /dev/null
+docker build \
+  -f "$PROJECT_DIR/Dockerfile.build.windows" \
+  --output "type=local,dest=$OUTPUT_DIR" \
+  "$PROJECT_DIR"
 
 echo "==> Build complete: $OUTPUT_DIR/albiondata-client.exe"
