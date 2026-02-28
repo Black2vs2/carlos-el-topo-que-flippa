@@ -1,0 +1,20 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "files": [],
+  "include": [],
+  "references": [
+    {
+      "path": "./tsconfig.app.json"
+    }
+  ],
+  "compilerOptions": {
+    "resolveJsonModule": true,
+    "esModuleInterop": true,
+    "baseUrl": ".",
+    "paths": {
+      "@custom-types/*": ["src/custom-types/*"],
+      "@utils/*": ["src/utils/*"],
+      "@prisma-generated/*": ["prisma/*"]
+    }
+  }
+}

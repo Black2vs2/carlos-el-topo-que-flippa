@@ -1,0 +1,18 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "outDir": "../../dist/out-tsc",
+    "module": "commonjs",
+    "types": ["node"],
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
+    "target": "es2021",
+    "moduleResolution": "node",
+    "paths": {
+      "@custom-types/*": ["./src/custom-types/*"],
+      "@utils/*": ["./src/utils/*"],
+      "@prisma-generated/*": ["./prisma/*"]
+    }
+  },
+  "include": ["src/**/*.ts"]
+}

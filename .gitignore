@@ -39,6 +39,9 @@ testem.log
 Thumbs.db
 
 .nx/cache
+.nx/workspace-data
 
 node_modules
 .claude
+vite.config.*.timestamp*
+vitest.config.*.timestamp*
