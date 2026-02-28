@@ -8,16 +8,47 @@ export class AvalonEventRequest {
   zoneName?: string;
 
   @ApiPropertyOptional()
+  previousZone?: string;
+
+  @ApiPropertyOptional()
   chestId?: string;
 
   @ApiPropertyOptional()
   chestType?: string;
 
-  @ApiPropertyOptional({ enum: ['Spawned', 'Opening', 'Opened', 'Cancelled'] })
+  @ApiPropertyOptional()
+  uniqueName?: string;
+
+  @ApiPropertyOptional()
+  locationName?: string;
+
+  @ApiPropertyOptional({
+    enum: [
+      'Spawned',
+      'Opening',
+      'Opened',
+      'Cancelled',
+      'Protected',
+      'Unprotected',
+      'Despawned',
+    ],
+  })
   chestStatus?: string;
 
   @ApiPropertyOptional()
+  posX?: number;
+
+  @ApiPropertyOptional()
+  posY?: number;
+
+  @ApiPropertyOptional()
   portalId?: string;
+
+  @ApiPropertyOptional()
+  portalName?: string;
+
+  @ApiPropertyOptional({ enum: ['entrance', 'exit'] })
+  portalType?: string;
 
   @ApiPropertyOptional()
   playerCount?: number;

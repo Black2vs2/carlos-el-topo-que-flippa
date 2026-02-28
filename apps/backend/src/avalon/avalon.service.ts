@@ -6,6 +6,7 @@ import {
   TrackedChest,
   TrackedPortal,
   ChestStatus,
+  DecodedMapInfo,
 } from '@custom-types/avalon.types';
 import { AvalonMapService } from './avalon-map.service';
 import { AvalonGateway } from './avalon.gateway';
@@ -19,6 +20,7 @@ export class AvalonService implements OnModuleInit, OnModuleDestroy {
   private readonly logger = new Logger(AvalonService.name);
 
   private currentZone: string | null = null;
+  private currentMapInfo: DecodedMapInfo | null = null;
   private zoneHistory: ZoneHistoryEntry[] = [];
   private activeChests: TrackedChest[] = [];
   private portals: TrackedPortal[] = [];
@@ -42,6 +44,7 @@ export class AvalonService implements OnModuleInit, OnModuleDestroy {
   getState(): AvalonState {
     return {
       currentZone: this.currentZone,
+      currentMapInfo: this.currentMapInfo,
       zoneHistory: this.zoneHistory,
       activeChests: this.activeChests,
       portals: this.portals,
@@ -68,8 +71,22 @@ export class AvalonService implements OnModuleInit, OnModuleDestroy {
     const zoneName = event.zoneName;
     if (!zoneName) return;
 
+    const previousZone = event.previousZone || this.currentZone;
+    this.logger.log(
+      `Zone change: ${previousZone || 'none'} -> ${zoneName}`,
+    );
+
     this.currentZone = zoneName;
     const mapInfo = this.mapService.decodeMapName(zoneName);
+    this.currentMapInfo = mapInfo;
+
+    this.logger.log(
+      `Map info: tier=${mapInfo.tier} gold=${mapInfo.hasGoldenChest} blue=${mapInfo.hasBlueChest} green=${mapInfo.hasGreenChest} dungeon=${mapInfo.hasDungeon} resources=[${mapInfo.resources.join(',')}]`,
+    );
+
+    // Clear chests and portals from previous zone
+    this.activeChests = [];
+    this.portals = [];
 
     const entry: ZoneHistoryEntry = {
       zoneName,
@@ -93,16 +110,25 @@ export class AvalonService implements OnModuleInit, OnModuleDestroy {
   }
 
   private handleChestEvent(event: AvalonEventPayload) {
-    const { chestId, chestType, chestStatus, zoneName } = event;
+    const { chestId, chestType, chestStatus, uniqueName, locationName, zoneName, posX, posY } = event;
     if (!chestId) return;
 
+    this.logger.log(
+      `Chest event: id=${chestId} type=${chestType || '-'} status=${chestStatus || '-'} uniqueName=${uniqueName || '-'} locationName=${locationName || '-'} pos=(${posX ?? '-'},${posY ?? '-'}) zone=${zoneName || '-'}`,
+    );
+
     const existingIndex = this.activeChests.findIndex((c) => c.id === chestId);
+    const existing = existingIndex >= 0 ? this.activeChests[existingIndex] : null;
 
     const chest: TrackedChest = {
       id: chestId,
-      zoneName: zoneName || this.currentZone || 'Unknown',
-      chestType: chestType || 'Unknown',
-      status: (chestStatus as ChestStatus) || 'Spawned',
+      zoneName: zoneName || existing?.zoneName || this.currentZone || 'Unknown',
+      chestType: chestType || existing?.chestType || 'Unknown',
+      uniqueName: uniqueName || existing?.uniqueName || '',
+      locationName: locationName || existing?.locationName || '',
+      status: (chestStatus as ChestStatus) || existing?.status || 'Spawned',
+      posX: posX ?? existing?.posX ?? 0,
+      posY: posY ?? existing?.posY ?? 0,
       timestamp: new Date(),
     };
 
@@ -117,14 +143,23 @@ export class AvalonService implements OnModuleInit, OnModuleDestroy {
   }
 
   private handlePortalActivity(event: AvalonEventPayload) {
-    const { portalId, zoneName, playerCount } = event;
+    const { portalId, zoneName, portalName, portalType, uniqueName, posX, posY, playerCount } = event;
     if (!portalId) return;
+
+    this.logger.log(
+      `Portal activity: id=${portalId} name=${portalName || '-'} uniqueName=${uniqueName || '-'} type=${portalType || '-'} pos=(${posX ?? '-'},${posY ?? '-'}) zone=${zoneName || '-'}`,
+    );
 
     const existingIndex = this.portals.findIndex((p) => p.id === portalId);
 
     const portal: TrackedPortal = {
       id: portalId,
       zoneName: zoneName || this.currentZone || 'Unknown',
+      portalName: portalName || '',
+      uniqueName: uniqueName || '',
+      portalType: (portalType as 'entrance' | 'exit') || 'entrance',
+      posX: posX ?? 0,
+      posY: posY ?? 0,
       playerCount: playerCount ?? 0,
       lastSeen: new Date(),
     };

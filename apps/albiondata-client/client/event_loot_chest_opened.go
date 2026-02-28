@@ -7,11 +7,16 @@ import (
 )
 
 type eventLootChestOpened struct {
-	ObjectId int `mapstructure:"0"`
+	ObjectId int         `mapstructure:"0"`
+	Field1   interface{} `mapstructure:"1"`
+	Field2   interface{} `mapstructure:"2"`
+	Field3   interface{} `mapstructure:"3"`
 }
 
 func (event eventLootChestOpened) Process(state *albionState) {
-	log.Debugf("Got evLootChestOpened: ObjectId=%d", event.ObjectId)
+	log.Infof("[CHEST] evLootChestOpened: id=%d %s zone=%s",
+		event.ObjectId, FormatPosition(event.ObjectId), state.LocationString)
+	log.Infof("[CHEST]   Raw fields: 1=%v 2=%v 3=%v", event.Field1, event.Field2, event.Field3)
 
 	payload := map[string]interface{}{
 		"type":        "chest_event",

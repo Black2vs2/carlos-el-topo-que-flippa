@@ -2,6 +2,7 @@ package client
 
 import (
 	"encoding/hex"
+	"fmt"
 	"reflect"
 	"strconv"
 
@@ -100,19 +101,239 @@ func decodeEvent(params map[uint8]interface{}) (event operation, err error) {
 		event = &eventRedZoneWorldMapEvent{}
 	case evNewLootChest:
 		event = &eventNewLootChest{}
+	case evUpdateLootChest:
+		event = &eventUpdateLootChest{}
 	case evLootChestOpened:
 		event = &eventLootChestOpened{}
+	case evUpdateLootProtectedByMobsWithMinimapDisplay:
+		event = &eventUpdateLootProtectedByMobs{}
 	case evNewPortalEntrance:
 		event = &eventNewPortalEntrance{}
 	case evNewPortalExit:
 		event = &eventNewPortalExit{}
+
+	// --- Handled events (spawnpoints) ---
+	case evLootChestSpawnpointsUpdate:
+		event = &eventLootChestSpawnpointsUpdate{}
+
+	// --- Debug: Treasure chests (open world, may differ from loot chests) ---
+	case evNewTreasureChest:
+		log.Infof("[PHOTON-DBG] evNewTreasureChest (126): %s", formatParamsForLog(params))
+		return nil, nil
+	case evTreasureChestUsingStart:
+		log.Infof("[PHOTON-DBG] evTreasureChestUsingStart (285): %s", formatParamsForLog(params))
+		return nil, nil
+	case evTreasureChestUsingFinished:
+		log.Infof("[PHOTON-DBG] evTreasureChestUsingFinished (286): %s", formatParamsForLog(params))
+		return nil, nil
+	case evTreasureChestUsingCancel:
+		log.Infof("[PHOTON-DBG] evTreasureChestUsingCancel (287): %s", formatParamsForLog(params))
+		return nil, nil
+	case evTreasureChestUsingOpeningComplete:
+		log.Infof("[PHOTON-DBG] evTreasureChestUsingOpeningComplete (288): %s", formatParamsForLog(params))
+		return nil, nil
+	case evTreasureChestForceCloseInventory:
+		log.Infof("[PHOTON-DBG] evTreasureChestForceCloseInventory (289): %s", formatParamsForLog(params))
+		return nil, nil
+	case evLocalTreasuresUpdate:
+		log.Infof("[PHOTON-DBG] evLocalTreasuresUpdate (290): %s", formatParamsForLog(params))
+		return nil, nil
+	case evNewMatchLootChestObject:
+		log.Infof("[PHOTON-DBG] evNewMatchLootChestObject (145): %s", formatParamsForLog(params))
+		return nil, nil
+
+	// --- Debug: Mobs (guards, bosses near chests) ---
+	case evNewMob:
+		log.Debugf("[PHOTON-DBG] evNewMob (132): %s", formatParamsForLog(params))
+		return nil, nil
+	case evMobChangeState:
+		log.Debugf("[PHOTON-DBG] evMobChangeState (46): %s", formatParamsForLog(params))
+		return nil, nil
+
+	// --- Debug: Harvestables (resources in zone) ---
+	case evNewSimpleHarvestableObject:
+		log.Debugf("[PHOTON-DBG] evNewSimpleHarvestableObject (37): %s", formatParamsForLog(params))
+		return nil, nil
+	case evNewSimpleHarvestableObjectList:
+		log.Debugf("[PHOTON-DBG] evNewSimpleHarvestableObjectList (38): %s", formatParamsForLog(params))
+		return nil, nil
+	case evNewHarvestableObject:
+		log.Debugf("[PHOTON-DBG] evNewHarvestableObject (39): %s", formatParamsForLog(params))
+		return nil, nil
+	case evHarvestableChangeState:
+		log.Debugf("[PHOTON-DBG] evHarvestableChangeState (45): %s", formatParamsForLog(params))
+		return nil, nil
+
+	// --- Debug: Zone/Cluster info ---
+	case evClusterInfoUpdate:
+		log.Infof("[PHOTON-DBG] evClusterInfoUpdate (149): %s", formatParamsForLog(params))
+		return nil, nil
+	case evPlayerCounts:
+		log.Infof("[PHOTON-DBG] evPlayerCounts (282): %s", formatParamsForLog(params))
+		return nil, nil
+
+	// --- Debug: Exits and entrances (portals, dungeons, mists, tunnels) ---
+	case evNewRandomDungeonExit:
+		event = &eventNewRandomDungeonExit{}
+	case evNewTunnelExit:
+		log.Infof("[PHOTON-DBG] evNewTunnelExit (454): %s", formatParamsForLog(params))
+		return nil, nil
+	case evNewTunnelExitTemp:
+		log.Infof("[PHOTON-DBG] evNewTunnelExitTemp (529): %s", formatParamsForLog(params))
+		return nil, nil
+	case evNewMistsStaticEntrance:
+		log.Infof("[PHOTON-DBG] evNewMistsStaticEntrance (527): %s", formatParamsForLog(params))
+		return nil, nil
+	case evNewMistsOpenWorldExit:
+		log.Infof("[PHOTON-DBG] evNewMistsOpenWorldExit (528): %s", formatParamsForLog(params))
+		return nil, nil
+	case evNewMistsBorderExit:
+		log.Infof("[PHOTON-DBG] evNewMistsBorderExit (542): %s", formatParamsForLog(params))
+		return nil, nil
+	case evNewMistsDungeonExit:
+		log.Infof("[PHOTON-DBG] evNewMistsDungeonExit (543): %s", formatParamsForLog(params))
+		return nil, nil
+	case evNewMistsCityEntrance:
+		log.Infof("[PHOTON-DBG] evNewMistsCityEntrance (532): %s", formatParamsForLog(params))
+		return nil, nil
+	case evNewMistsCityRoadsEntrance:
+		log.Infof("[PHOTON-DBG] evNewMistsCityRoadsEntrance (533): %s", formatParamsForLog(params))
+		return nil, nil
+	case evNewMistsImmediateReturnExit:
+		log.Infof("[PHOTON-DBG] evNewMistsImmediateReturnExit (525): %s", formatParamsForLog(params))
+		return nil, nil
+	case evNewMistsWispSpawn:
+		log.Infof("[PHOTON-DBG] evNewMistsWispSpawn (530): %s", formatParamsForLog(params))
+		return nil, nil
+	case evMistsWispSpawnStateChange:
+		log.Infof("[PHOTON-DBG] evMistsWispSpawnStateChange (531): %s", formatParamsForLog(params))
+		return nil, nil
+	case evMistsEntranceDataChanged:
+		log.Infof("[PHOTON-DBG] evMistsEntranceDataChanged (536): %s", formatParamsForLog(params))
+		return nil, nil
+	case evNewExit:
+		log.Infof("[PHOTON-DBG] evNewExit (223): %s", formatParamsForLog(params))
+		return nil, nil
+	case evNewHellgateExitPortal:
+		log.Infof("[PHOTON-DBG] evNewHellgateExitPortal (256): %s", formatParamsForLog(params))
+		return nil, nil
+	case evNewExpeditionExit:
+		log.Infof("[PHOTON-DBG] evNewExpeditionExit (257): %s", formatParamsForLog(params))
+		return nil, nil
+	case evNewArenaExit:
+		log.Infof("[PHOTON-DBG] evNewArenaExit (146): %s", formatParamsForLog(params))
+		return nil, nil
+	case evNewHideoutExit:
+		log.Infof("[PHOTON-DBG] evNewHideoutExit (427): %s", formatParamsForLog(params))
+		return nil, nil
+
+	// --- Debug: Shrines ---
+	case evNewShrine:
+		log.Infof("[PHOTON-DBG] evNewShrine (402): %s", formatParamsForLog(params))
+		return nil, nil
+	case evUpdateShrine:
+		log.Infof("[PHOTON-DBG] evUpdateShrine (403): %s", formatParamsForLog(params))
+		return nil, nil
+	case evNewHellgateShrine:
+		log.Infof("[PHOTON-DBG] evNewHellgateShrine (406): %s", formatParamsForLog(params))
+		return nil, nil
+	case evNewCorruptedShrine:
+		log.Infof("[PHOTON-DBG] evNewCorruptedShrine (464): %s", formatParamsForLog(params))
+		return nil, nil
+
+	// --- Debug: Room/dungeon progression ---
+	case evUpdateRoom:
+		log.Infof("[PHOTON-DBG] evUpdateRoom (404): %s", formatParamsForLog(params))
+		return nil, nil
+	case evRandomDungeonPositionInfo:
+		log.Infof("[PHOTON-DBG] evRandomDungeonPositionInfo (397): %s", formatParamsForLog(params))
+		return nil, nil
+
+	// --- Debug: Characters entering/leaving ---
+	case evNewCharacter:
+		log.Debugf("[PHOTON-DBG] evNewCharacter (28): %s", formatParamsForLog(params))
+		return nil, nil
+	case evLeave:
+		log.Debugf("[PHOTON-DBG] evLeave (1): %s", formatParamsForLog(params))
+		return nil, nil
+
+	// --- Debug: Outlands teleportation portals ---
+	case evNewOutlandsTeleportationPortal:
+		log.Infof("[PHOTON-DBG] evNewOutlandsTeleportationPortal (609): %s", formatParamsForLog(params))
+		return nil, nil
+	case evNewOutlandsTeleportationReturnPortal:
+		log.Infof("[PHOTON-DBG] evNewOutlandsTeleportationReturnPortal (610): %s", formatParamsForLog(params))
+		return nil, nil
+
 	default:
+		// Log ALL unhandled events to discover unknown event types (like portal data).
+		// Filter out the very noisy ones (movement, combat, health, energy, etc.)
+		et := EventType(eventType)
+		switch et {
+		case evMove, evTeleport, evHealthUpdate, evHealthUpdates,
+			evEnergyUpdate, evDamageShieldUpdate, evCraftingFocusUpdate,
+			evActiveSpellEffectsUpdate, evResetCooldowns,
+			evAttack, evCastStart, evChannelingUpdate, evCastCancel,
+			evCastTimeUpdate, evCastFinished, evCastSpell, evCastSpells,
+			evCastHit, evCastHits, evStoredTargetsUpdate, evChannelingEnded,
+			evRegenerationHealthChanged, evRegenerationEnergyChanged,
+			evRegenerationMountHealthChanged, evRegenerationCraftingChanged,
+			evRegenerationHealthEnergyComboChanged, evRegenerationPlayerComboChanged,
+			evDurabilityChanged, evInCombatStateUpdate, evForcedMovement,
+			evForcedMovementCancel, evSpellCooldownUpdate,
+			evChangeEquipment, evCharacterEquipmentChanged,
+			evNewEquipmentItem, evNewSimpleItem, evNewFurnitureItem,
+			evInventoryPutItem, evInventoryDeleteItem, evInventoryState,
+			evAttachItemContainer, evDetachItemContainer, evLockItemContainer,
+			evNewLoot, evOtherGrabbedLoot, evEstimatedMarketValueUpdate,
+			evOverChargeEnd, evOverChargeStatus,
+			evTimeSync, evKeySync, evKeyValidation,
+			// Noisy spell/combat/UI events
+			evNewSpellEffectArea, evUpdateSpellEffectArea,
+			evNewChainSpell, evUpdateChainSpell,
+			// Noisy zone-join one-time dumps (achievements, quests, cosmetics, mail, chat)
+			evFullAchievementInfo, evFullAchievementProgressInfo,
+			evFullAutoLearnAchievementInfo, evFullTrackedAchievementInfo,
+			evFinishedAchievement, evAchievementProgressInfo,
+			evFullQuestInfo, evQuestProgressInfo,
+			evFullExpeditionInfo, evExpeditionQuestProgressInfo,
+			evUpdateUnlockedAvatars, evUpdateUnlockedAvatarRings,
+			evUpdateUnlockedBuildings, evUpdateUnlockedGuildLogos,
+			evNewUnreadMails, evUpdateChatSettings,
+			evFeatureSwitchInfo, evJoinFinished,
+			evMounted, evMountStart, evMountCancel, evMountCooldownUpdate, evMountHealthUpdate,
+			evPlayerMovementRateUpdate,
+			evJournalAchievementProgressUpdate, evFullJournalQuestInfo, evJournalQuestProgressInfo,
+			evPartyPlayerUpdated, evPartyChangedOrder, evPartyLootSettingChangedPlayer,
+			evGuildUpdate, evGuildPlayerUpdated, evGuildMemberWorldUpdate,
+			evNewHuntTrack, evHuntTrackUsed, evHuntTrackUseableAgain,
+			evMinimapHuntTrackMarkers, evHuntMissionUpdate,
+			evUpdateMoney, evUpdateFame, evExitUsed:
+			// Too noisy, skip silently
+		default:
+			log.Infof("[PHOTON-UNHANDLED] event=%d (%s): %s", eventType, et.String(), formatParamsForLog(params))
+		}
 		return nil, nil
 	}
 
 	err = decodeParams(params, event)
 
 	return event, err
+}
+
+// formatParamsForLog formats Photon params map for readable logging.
+func formatParamsForLog(params map[uint8]interface{}) string {
+	result := "{"
+	first := true
+	for k, v := range params {
+		if !first {
+			result += ", "
+		}
+		result += fmt.Sprintf("%d:%v", k, v)
+		first = false
+	}
+	result += "}"
+	return result
 }
 
 func decodeParams(params map[uint8]interface{}, operation operation) error {

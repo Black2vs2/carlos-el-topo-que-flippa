@@ -9,13 +9,20 @@ type operationGetGameServerByCluster struct {
 }
 
 func (op operationGetGameServerByCluster) Process(state *albionState) {
-	log.Debugf("Got GetGameServerByCluster operation: ZoneID=%q", op.ZoneID)
-
+	previousZone := state.LocationString
 	state.LocationString = op.ZoneID
 
+	log.Infof("[ZONE] Zone change: %s -> %s", previousZone, op.ZoneID)
+
+	// Dump all learned chest type mappings so far
+	globalChestCache.DumpKnownMappings()
+	// Clear per-zone data (keep learned mappings)
+	globalChestCache.ClearZone()
+
 	payload := map[string]interface{}{
-		"type":     "zone_change",
-		"zoneName": op.ZoneID,
+		"type":         "zone_change",
+		"zoneName":     op.ZoneID,
+		"previousZone": previousZone,
 	}
 
 	sendAvalonEvent(payload)

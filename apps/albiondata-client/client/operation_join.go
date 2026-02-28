@@ -24,16 +24,24 @@ func (op operationJoinResponse) Process(state *albionState) {
 	// of SetServerID() incase the player switched servers
 	state.AODataServerID = 0
 
-	log.Infof("Updating player location to %v.", op.Location)
+	log.Infof("[ZONE] JoinResponse: Location=%s CharacterName=%s", op.Location, op.CharacterName)
 	state.LocationId = op.Location
+	state.LocationString = op.Location
 
 	if state.CharacterId != op.CharacterID {
-		log.Infof("Updating player ID to %v.", op.CharacterID)
+		log.Infof("[PLAYER] Player ID updated to %v.", op.CharacterID)
 	}
 	state.CharacterId = op.CharacterID
 
 	if state.CharacterName != op.CharacterName {
-		log.Infof("Updating player to %v.", op.CharacterName)
+		log.Infof("[PLAYER] Player name updated to %v.", op.CharacterName)
 	}
 	state.CharacterName = op.CharacterName
+
+	// Send zone_change so the backend knows our starting zone
+	payload := map[string]interface{}{
+		"type":     "zone_change",
+		"zoneName": op.Location,
+	}
+	sendAvalonEvent(payload)
 }
