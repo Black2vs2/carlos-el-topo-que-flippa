@@ -7,6 +7,8 @@ const parsedItems = parsed_items as SimplifiedItem[];
 
 const mapOrder = (order: IngestOrderRequest): OrderWithKey => ({
   ...order,
+  // The Go client sends LocationId as a string; convert to number for Prisma and enum comparisons
+  LocationId: Number(order.LocationId) || 0,
   //TODO: understand why some prices are multiplied by 10k
   UnitPriceSilver: order.UnitPriceSilver / 10000,
   Expires: new Date(order.Expires),
