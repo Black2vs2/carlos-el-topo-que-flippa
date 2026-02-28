@@ -1,7 +1,7 @@
-import { Body, Controller, Get, HttpCode, HttpException, Post } from '@nestjs/common';
+import { Body, Controller, Get, HttpCode, HttpException, Logger, Post } from '@nestjs/common';
 import { OrdersService } from './orders.service';
 import { OrderWithKey, ProfitableOrders } from '@custom-types/DTO';
-import { DeleteByCityRequest, MarketOrderIngestRequest } from './orders-dtos';
+import { DeleteByCityRequest, MapDataIngestRequest, MarketOrderIngestRequest } from './orders-dtos';
 import { ApiTags } from '@nestjs/swagger';
 import { writeFile } from 'fs/promises';
 import { join } from 'path';
@@ -9,6 +9,8 @@ import { join } from 'path';
 @ApiTags('Orders')
 @Controller('orders')
 export class OrdersController {
+  private readonly logger = new Logger(OrdersController.name);
+
   constructor(private readonly ordersService: OrdersService) {}
 
   @Get('')
@@ -54,6 +56,13 @@ export class OrdersController {
     this.ordersService.ingestMarketOrders(orders);
 
     return `Successfully ingested orders`;
+  }
+
+  @Post('mapdata.ingest')
+  @HttpCode(200)
+  ingestMapData(@Body() mapData: MapDataIngestRequest): string {
+    this.logger.log(`Received map data for zone ${mapData.ZoneID} with ${mapData.BuildingType?.length ?? 0} buildings`);
+    return 'OK';
   }
 
   @Post('delete-by-city')
