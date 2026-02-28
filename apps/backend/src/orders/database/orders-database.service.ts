@@ -13,6 +13,7 @@ export class OrdersDatabaseService {
   private deleteAllStmt: Database.Statement;
   private deleteExpiredStmt: Database.Statement;
   private countStmt: Database.Statement;
+  private countByCityStmt: Database.Statement;
 
   constructor(private sqlite: SqliteService) {}
 
@@ -34,7 +35,10 @@ export class OrdersDatabaseService {
     this.deleteByCityStmt = db.prepare('DELETE FROM orders WHERE LocationId = ?');
     this.deleteAllStmt = db.prepare('DELETE FROM orders');
     this.deleteExpiredStmt = db.prepare("DELETE FROM orders WHERE Expires < datetime('now')");
-    this.countStmt = db.prepare('SELECT COUNT(*) as count FROM orders');
+    this.countStmt = db.prepare("SELECT COUNT(*) as count FROM orders WHERE Expires >= datetime('now')");
+    this.countByCityStmt = db.prepare(
+      "SELECT LocationId, COUNT(*) as count FROM orders WHERE Expires >= datetime('now') GROUP BY LocationId"
+    );
 
     this.logger.log('Prepared statements initialized');
   }
@@ -72,6 +76,15 @@ export class OrdersDatabaseService {
 
   getOrderCount(): number {
     return (this.countStmt.get() as { count: number }).count;
+  }
+
+  getOrderCountsByCity(): Record<number, number> {
+    const rows = this.countByCityStmt.all() as { LocationId: number; count: number }[];
+    const result: Record<number, number> = {};
+    for (const row of rows) {
+      result[row.LocationId] = row.count;
+    }
+    return result;
   }
 
   saveIngestableOrders(sanitizedOrders: OrderWithKey[]): { total: number; created: number; skipped: number; durationMs: number } {

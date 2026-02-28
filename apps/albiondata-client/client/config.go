@@ -71,6 +71,12 @@ type config struct {
 	UpdateGithubRepo               string
 }
 
+// DefaultIngestURL is the default ingest base URL, overridable at build time via ldflags.
+var DefaultIngestURL = "http://localhost:3000/orders"
+
+// DefaultAuthToken is the default auth token, overridable at build time via ldflags.
+var DefaultAuthToken = ""
+
 // config global config data
 var ConfigGlobal = &config{
 	LogLevel:          "INFO",
@@ -225,14 +231,14 @@ func (config *config) setupCommonFlags() {
 	flag.StringVar(
 		&config.PublicIngestBaseUrls,
 		"i",
-		"http://localhost:3000/orders",
+		DefaultIngestURL,
 		"Base URL to send PUBLIC data to, can be 'nats://', 'http://', 'https://' or 'noop' and can have multiple uploaders. Comma separated.",
 	)
 
 	flag.StringVar(
 		&config.IngestAuthToken,
 		"token",
-		"",
+		DefaultAuthToken,
 		"Auth token for the ingest API. Sent as X-Auth-Token header.",
 	)
 

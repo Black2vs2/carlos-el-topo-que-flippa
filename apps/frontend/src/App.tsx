@@ -1,7 +1,7 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useCallback } from 'react';
 
 import { Grid, CircularProgress, Backdrop, Skeleton, Typography, Tabs, Tab, Box } from '@mui/material';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useSnackbar } from 'notistack';
 
 import { ProfitableOrders } from './@types/AOData';
@@ -10,20 +10,18 @@ import { singularOrPluralNaming } from './service/utils';
 import { OrdersTable, ClearCitiesDialog, AvalonRoadsPage } from './components';
 import Api from './service/api';
 import { socket } from './service/socket';
+import { setupOrdersSocketListeners, cleanupOrdersSocketListeners } from './service/orders-socket';
 import { useClearCitiesState } from './components/dialog/_stores/useClearCitiesState';
 import { TopBarPremium } from './components/top-bar/TopBarPremium';
 import { TopBarActions } from './components/top-bar/TopBarActions';
-import { TopBarAutorefresh } from './components/top-bar/TopBarAutorefresh';
-import useTabActive from './hooks/FocusHandler';
-import { useFiltersStore } from './_stores/useFiltersStore';
+import { StatsBar } from './components/top-bar/StatsBar';
 import { useTabStore } from './_stores/useTabStore';
-import { useCallback } from 'react';
 
 function App() {
   const { enqueueSnackbar } = useSnackbar();
   const { loading: isClearLoading } = useClearCitiesState();
-  const { autorefreshChecked } = useFiltersStore();
   const { activeTab, setActiveTab } = useTabStore();
+  const queryClient = useQueryClient();
 
   const {
     isLoading: orderIsLoading,
@@ -54,37 +52,20 @@ function App() {
     }
   }, [isError]);
 
+  useEffect(() => {
+    setupOrdersSocketListeners(queryClient);
+    socket.connect();
+
+    return () => {
+      cleanupOrdersSocketListeners();
+      socket.disconnect();
+    };
+  }, [queryClient]);
+
   const onRefresh = useCallback(async () => {
     if (orderIsLoading) return;
     await orderRefetch();
   }, [orderIsLoading, orderRefetch]);
-
-  useEffect(() => {
-    const interval = autorefreshChecked ? setInterval(onRefresh, 3000) : null;
-    return () => {
-      if (interval) clearInterval(interval);
-    };
-  }, [autorefreshChecked, onRefresh]);
-
-  // useEffect(() => {
-  //   socket.connect();
-  // }, [socket]);
-  // useEffect(() => {
-  //   function onOrdersEvent(value: ProfitableOrders[]) {
-  //     console.log("value", value);
-  //   }
-
-  //   socket.on("orders", onOrdersEvent);
-
-  //   return () => {
-  //     socket.off("orders", onOrdersEvent);
-  //   };
-  // }, []);
-  /**
-   * Add clear last X hours
-   * Add possibility to compare prices in cities for materials
-   * 
-   */
 
   return (
     <>
@@ -116,9 +97,9 @@ function App() {
               <Grid container item xs={9} columnGap={2}>
                 <TopBarActions isAnythingLoading={isClearLoading || orderIsLoading} onRefresh={onRefresh} />
               </Grid>
-              <TopBarAutorefresh />
               <TopBarPremium />
             </Grid>
+            <StatsBar />
             <Grid item>
               {orderIsLoading ? (
                 <Skeleton variant="rounded" width="990px" height={500} animation="wave" />

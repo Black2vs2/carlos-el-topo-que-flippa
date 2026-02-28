@@ -61,9 +61,9 @@ func pingBackend() {
 		return
 	}
 	backendBase := fmt.Sprintf("%s://%s", parsed.Scheme, parsed.Host)
-	pingURL := fmt.Sprintf("%s/ping?token=stompedyou", backendBase)
+	pingURL := fmt.Sprintf("%s/ping?token=%s", backendBase, client.ConfigGlobal.IngestAuthToken)
 
-	log.Infof("Trying to connect to backend at %s ...", backendBase)
+	log.Infof("Trying to connect to backend at %s (token: %s) ...", backendBase, client.ConfigGlobal.IngestAuthToken)
 
 	httpClient := &http.Client{Timeout: 5 * time.Second}
 	resp, err := httpClient.Get(pingURL)

@@ -4,7 +4,9 @@
   "license": "MIT",
   "scripts": {
     "start:frontend": "nx run frontend:serve",
-    "start:backend": "nx run backend:serve"
+    "start:backend": "nx run backend:serve",
+    "build:client": "apps\\albiondata-client\\scripts\\build-local.bat",
+    "build:client:prod": "apps\\albiondata-client\\scripts\\build-prod.bat"
   },
   "private": true,
   "dependencies": {

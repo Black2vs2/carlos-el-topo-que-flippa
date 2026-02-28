@@ -7,6 +7,12 @@ import { OrdersSeedDatabaseService } from './database/orders-seed-database.servi
 import { getProfitableComparisonKey, mapProfitableComparisonOrdersToObject } from '@utils/utils';
 import { AuctionTypes } from '@utils/config';
 import { OrdersGateway } from './orders.gateway';
+import { OrdersStatsPayload } from '@custom-types/orders-ws.types';
+
+interface IngestionLogEntry {
+  timestamp: number;
+  orderCount: number;
+}
 
 @Injectable()
 export class OrdersService implements OnModuleInit, OnModuleDestroy {
@@ -19,6 +25,8 @@ export class OrdersService implements OnModuleInit, OnModuleDestroy {
   private lastIngestionAt: Date | null = null;
   private cacheComputeMs = 0;
 
+  private ingestionLog: IngestionLogEntry[] = [];
+
   constructor(
     private ordersDatabaseService: OrdersDatabaseService,
     private ordersSeedDatabaseService: OrdersSeedDatabaseService,
@@ -27,6 +35,9 @@ export class OrdersService implements OnModuleInit, OnModuleDestroy {
 
   onModuleInit() {
     this.ordersDatabaseService.initStatements();
+
+    this.ordersGateway.registerStatsProvider(() => this.buildStatsPayload());
+
     this.recomputeProfitableCache();
 
     this.expiryTimer = setInterval(() => {
@@ -46,13 +57,34 @@ export class OrdersService implements OnModuleInit, OnModuleDestroy {
     }
   }
 
+  private pruneIngestionLog() {
+    const oneMinuteAgo = Date.now() - 60_000;
+    this.ingestionLog = this.ingestionLog.filter((e) => e.timestamp >= oneMinuteAgo);
+  }
+
+  buildStatsPayload(): OrdersStatsPayload {
+    this.pruneIngestionLog();
+
+    return {
+      connectedClients: this.ordersGateway.connectedClients,
+      ingestionsLastMinute: this.ingestionLog.length,
+      ordersIngestedLastMinute: this.ingestionLog.reduce((sum, e) => sum + e.orderCount, 0),
+      ordersByCity: this.ordersDatabaseService.getOrderCountsByCity(),
+      totalOrdersInDb: this.ordersDatabaseService.getOrderCount(),
+      profitableCount: this.cachedProfitable.length,
+      lastIngestionAt: this.lastIngestionAt,
+      cacheComputeMs: this.cacheComputeMs,
+    };
+  }
+
   private recomputeProfitableCache() {
     const start = Date.now();
     this.cachedProfitable = this.computeProfitable();
     this.cacheComputeMs = Date.now() - start;
     this.logger.log(`Cache recomputed: ${this.cachedProfitable.length} profitable groups in ${this.cacheComputeMs}ms`);
 
-    this.ordersGateway.updateClientsWithNewOrders(this.cachedProfitable);
+    this.ordersGateway.emitProfitableOrders(this.cachedProfitable);
+    this.ordersGateway.broadcastStats();
   }
 
   private computeProfitable(): ProfitableOrders[] {
@@ -134,6 +166,8 @@ export class OrdersService implements OnModuleInit, OnModuleDestroy {
     this.totalIngestions++;
     this.totalOrdersIngested += result.total;
     this.lastIngestionAt = new Date();
+
+    this.ingestionLog.push({ timestamp: Date.now(), orderCount: result.total });
 
     this.recomputeProfitableCache();
   }

@@ -1,4 +1,4 @@
-import { Controller, Get, Query, UnauthorizedException } from '@nestjs/common';
+import { Controller, Get } from '@nestjs/common';
 import { AppService } from './app.service';
 import { ApiTags } from '@nestjs/swagger';
 
@@ -18,10 +18,7 @@ export class AppController {
   }
 
   @Get('ping')
-  ping(@Query('token') token: string): { status: string; client: string } {
-    if (token !== 'stompedyou') {
-      throw new UnauthorizedException('Invalid token');
-    }
+  ping(): { status: string; client: string } {
     return { status: 'pong', client: 'iStompedYou' };
   }
 }
