@@ -1,5 +1,6 @@
 import axios from "axios";
 import { ProfitableOrders } from "../@types/AOData";
+import { AvalonState } from "../@types/avalon.types";
 import { ClearDatabaseResponse } from "../@types/api";
 import { BACKEND_URL } from "./consts";
 
@@ -13,6 +14,14 @@ const clearCity = (cityId: number) => {
   return response;
 };
 
-const Api = { allOrders, clearCity };
+const getAvalonState = () => {
+  return axios.get<AvalonState>(`${BACKEND_URL}/avalon/state`);
+};
+
+const getAvalonMaps = () => {
+  return axios.get(`${BACKEND_URL}/avalon/maps`);
+};
+
+const Api = { allOrders, clearCity, getAvalonState, getAvalonMaps };
 
 export default Api;

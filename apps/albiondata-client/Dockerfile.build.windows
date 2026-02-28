@@ -1,0 +1,16 @@
+FROM golang:1.24-bookworm AS builder
+
+WORKDIR /src
+COPY go.mod go.sum ./
+RUN go mod download
+
+COPY . .
+
+RUN GOOS=windows GOARCH=amd64 go build \
+    -ldflags "-s -w" \
+    -o /out/albiondata-client.exe \
+    -v \
+    albiondata-client.go
+
+FROM scratch
+COPY --from=builder /out/albiondata-client.exe /out/albiondata-client.exe

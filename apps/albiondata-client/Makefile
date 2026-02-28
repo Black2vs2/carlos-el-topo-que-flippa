@@ -10,6 +10,9 @@ validate-fmt:
 build-windows:
 	scripts/build-windows.sh
 
+docker-build-windows:
+	scripts/docker-build-windows.sh
+
 build-linux:
 	scripts/build-linux.sh
 

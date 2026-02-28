@@ -2,6 +2,9 @@ const { NxAppWebpackPlugin } = require('@nx/webpack/app-plugin');
 const { join } = require('path');
 
 module.exports = {
+  externals: {
+    'better-sqlite3': 'commonjs better-sqlite3',
+  },
   output: {
     path: join(__dirname, '../../dist/apps/backend'),
     clean: true,

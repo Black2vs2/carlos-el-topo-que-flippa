@@ -12,48 +12,55 @@ export class OrdersController {
   constructor(private readonly ordersService: OrdersService) {}
 
   @Get('')
-  async getAllOrders(): Promise<OrderWithKey[]> {
-    return await this.ordersService.getAll();
+  getAllOrders(): OrderWithKey[] {
+    return this.ordersService.getAll();
   }
 
   @Get('seed/dump')
   async dumpDatabase() {
-    const orders = await this.ordersService.getAll();
+    const orders = this.ordersService.getAll();
     const ordersFilePath = join(__dirname, './src/generated/orders.json');
     await writeFile(ordersFilePath, JSON.stringify(orders, null, 2));
   }
+
   @Get('seed/feed')
-  async feedDatabase() {
-    await this.ordersService.seedOrders();
+  feedDatabase() {
+    this.ordersService.seedOrders();
   }
+
   @Get('seed/profitable')
-  async seedDatabaseWithProfitable() {
-    await this.ordersService.seedProfitableOrders();
+  seedDatabaseWithProfitable() {
+    this.ordersService.seedProfitableOrders();
     return 'Done';
   }
 
   @Get('profitable')
-  async getProfitable(): Promise<ProfitableOrders[]> {
-    return await this.ordersService.getProfitable();
+  getProfitable(): ProfitableOrders[] {
+    return this.ordersService.getProfitable();
+  }
+
+  @Get('metrics')
+  getMetrics() {
+    return this.ordersService.getMetrics();
   }
 
   @Post('marketorders.ingest')
   @HttpCode(200)
-  async ingestMarketOrders(@Body() ingestData: MarketOrderIngestRequest): Promise<string> {
+  ingestMarketOrders(@Body() ingestData: MarketOrderIngestRequest): string {
     const orders = ingestData.Orders;
 
     if (!orders || orders.length < 1) throw new HttpException('Malformed request', 400);
 
-    await this.ordersService.ingestMarketOrders(orders);
+    this.ordersService.ingestMarketOrders(orders);
 
     return `Successfully ingested orders`;
   }
 
   @Post('delete-by-city')
-  async deleteOrdersByCity(@Body() { cityId, authToken }: DeleteByCityRequest): Promise<string> {
+  deleteOrdersByCity(@Body() { cityId, authToken }: DeleteByCityRequest): string {
     if (!authToken || authToken !== 'ermaggico') throw new HttpException('Unauthorized', 401);
 
-    const deletedCount = await this.ordersService.deleteByCity(+cityId);
+    const deletedCount = this.ordersService.deleteByCity(+cityId);
 
     return `Deleted ${deletedCount} orders`;
   }

@@ -1,27 +1,29 @@
 import { IngestOrderRequest } from '@custom-types/AOData';
-import { Injectable } from '@nestjs/common';
-import { PrismaService } from '../../database/prisma.service';
+import { Injectable, Logger } from '@nestjs/common';
 import { seedOrders } from './orders';
 import { sanitizeForDb } from '@utils/sanitizer';
 import { OrderWithKey } from '@custom-types/DTO';
+import { OrdersDatabaseService } from './orders-database.service';
 import * as orders from '../../generated/orders.json';
 const parsedOrders = orders as unknown as OrderWithKey[];
+
 @Injectable()
 export class OrdersSeedDatabaseService {
-  constructor(private prisma: PrismaService) {}
+  private readonly logger = new Logger(OrdersSeedDatabaseService.name);
 
-  async seedWithOrderJson() {
-    await this.prisma.orders.createMany({ data: parsedOrders as unknown as OrderWithKey[] });
+  constructor(private ordersDatabaseService: OrdersDatabaseService) {}
+
+  seedWithOrderJson() {
+    this.logger.log(`Seeding ${parsedOrders.length} orders from JSON`);
+    return this.ordersDatabaseService.saveIngestableOrders(parsedOrders);
   }
 
-  async seedWithprofitable() {
+  seedWithprofitable() {
     const sanitizedBlackmarketOrders = sanitizeForDb(seedOrders.profitable.blackMarketOrders as unknown as IngestOrderRequest[]);
-    sanitizedBlackmarketOrders.forEach(async (order) => {
-      await this.prisma.orders.create({ data: order });
-    });
     const sanitizedCityOrders = sanitizeForDb(seedOrders.profitable.cityOrders as unknown as IngestOrderRequest[]);
-    sanitizedCityOrders.forEach(async (order) => {
-      await this.prisma.orders.create({ data: order });
-    });
+    const allOrders = [...sanitizedBlackmarketOrders, ...sanitizedCityOrders];
+
+    this.logger.log(`Seeding ${allOrders.length} profitable orders (${sanitizedBlackmarketOrders.length} black market + ${sanitizedCityOrders.length} city)`);
+    return this.ordersDatabaseService.saveIngestableOrders(allOrders);
   }
 }

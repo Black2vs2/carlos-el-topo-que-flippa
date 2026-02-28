@@ -45,3 +45,9 @@ node_modules
 .claude
 vite.config.*.timestamp*
 vitest.config.*.timestamp*
+
+# SQLite
+*.db
+*.db-wal
+*.db-shm
+data/

@@ -10,8 +10,7 @@
     "moduleResolution": "node",
     "paths": {
       "@custom-types/*": ["./src/custom-types/*"],
-      "@utils/*": ["./src/utils/*"],
-      "@prisma-generated/*": ["./prisma/*"]
+      "@utils/*": ["./src/utils/*"]
     }
   },
   "include": ["src/**/*.ts"]
