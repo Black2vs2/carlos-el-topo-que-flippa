@@ -2,7 +2,7 @@ import React from "react";
 import { Button } from "@mui/material";
 import { useClearCitiesState } from "../dialog/_stores/useClearCitiesState";
 
-export const TopBarActions = (isAnythingLoading: boolean, onRefresh: () => void) => {
+export const TopBarActions = ({ isAnythingLoading, onRefresh }: { isAnythingLoading: boolean; onRefresh: () => void }) => {
   const { setOpen } = useClearCitiesState();
   return (
     <>

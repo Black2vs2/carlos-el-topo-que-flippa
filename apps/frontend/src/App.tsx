@@ -114,10 +114,10 @@ function App() {
             <Grid item container columnGap={2}></Grid>
             <Grid item container>
               <Grid container item xs={9} columnGap={2}>
-                {TopBarActions(isClearLoading || orderIsLoading, onRefresh)}
+                <TopBarActions isAnythingLoading={isClearLoading || orderIsLoading} onRefresh={onRefresh} />
               </Grid>
-              {TopBarAutorefresh()}
-              {TopBarPremium()}
+              <TopBarAutorefresh />
+              <TopBarPremium />
             </Grid>
             <Grid item>
               {orderIsLoading ? (
