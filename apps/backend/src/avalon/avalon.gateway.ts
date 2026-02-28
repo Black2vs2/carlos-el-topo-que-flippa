@@ -1,32 +1,42 @@
-import { MessageBody, SubscribeMessage, WebSocketGateway, WebSocketServer } from '@nestjs/websockets';
+import { Injectable } from '@nestjs/common';
+import { WebSocket, WebSocketServer } from 'ws';
 import { AvalonState, AVALON_WS_EVENTS, ZoneHistoryEntry, TrackedChest, TrackedPortal, DecodedMapInfo } from '@custom-types/avalon.types';
 
-@WebSocketGateway({ cors: { origin: '*' } })
+@Injectable()
 export class AvalonGateway {
-  @WebSocketServer() server;
+  private server: WebSocketServer | null = null;
 
-  @SubscribeMessage(AVALON_WS_EVENTS.STATE)
-  handleStateRequest(@MessageBody() data: string): string {
-    return data;
+  setServer(wss: WebSocketServer) {
+    this.server = wss;
   }
 
   emitFullState(state: AvalonState) {
-    this.server.emit(AVALON_WS_EVENTS.STATE, state);
+    this.broadcast(AVALON_WS_EVENTS.STATE, state);
   }
 
   emitZoneChange(entry: ZoneHistoryEntry) {
-    this.server.emit(AVALON_WS_EVENTS.ZONE_CHANGE, entry);
+    this.broadcast(AVALON_WS_EVENTS.ZONE_CHANGE, entry);
   }
 
   emitChestUpdate(chests: TrackedChest[]) {
-    this.server.emit(AVALON_WS_EVENTS.CHEST_UPDATE, chests);
+    this.broadcast(AVALON_WS_EVENTS.CHEST_UPDATE, chests);
   }
 
   emitPortalUpdate(portals: TrackedPortal[]) {
-    this.server.emit(AVALON_WS_EVENTS.PORTAL_UPDATE, portals);
+    this.broadcast(AVALON_WS_EVENTS.PORTAL_UPDATE, portals);
   }
 
   emitGoldenAlert(mapInfo: DecodedMapInfo) {
-    this.server.emit(AVALON_WS_EVENTS.GOLDEN_ALERT, mapInfo);
+    this.broadcast(AVALON_WS_EVENTS.GOLDEN_ALERT, mapInfo);
+  }
+
+  private broadcast(event: string, data: unknown) {
+    if (!this.server) return;
+    const message = JSON.stringify({ event, data });
+    this.server.clients.forEach((client) => {
+      if (client.readyState === WebSocket.OPEN) {
+        client.send(message);
+      }
+    });
   }
 }

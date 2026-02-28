@@ -5,6 +5,9 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { join } from 'path';
 import { existsSync } from 'fs';
 import { Request, Response, NextFunction } from 'express';
+import { WebSocketServer } from 'ws';
+import { OrdersGateway } from './orders/orders.gateway';
+import { AvalonGateway } from './avalon/avalon.gateway';
 
 function parseCookie(cookieHeader: string | undefined, name: string): string | null {
   if (!cookieHeader) return null;
@@ -54,5 +57,18 @@ async function bootstrap() {
   SwaggerModule.setup('swagger', app, document);
 
   await app.listen(process.env.PORT || 3000);
+
+  // Set up native WebSocket server on the same HTTP server
+  const wss = new WebSocketServer({ server: app.getHttpServer() });
+
+  const ordersGateway = app.get(OrdersGateway);
+  const avalonGateway = app.get(AvalonGateway);
+  ordersGateway.setServer(wss);
+  avalonGateway.setServer(wss);
+
+  wss.on('connection', (ws) => {
+    ordersGateway.handleConnection();
+    ws.on('close', () => ordersGateway.handleDisconnect());
+  });
 }
 bootstrap();

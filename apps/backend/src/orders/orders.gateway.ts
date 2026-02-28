@@ -1,42 +1,54 @@
 import { ProfitableOrders } from '@custom-types/DTO';
 import { ORDERS_WS_EVENTS, OrdersStatsPayload } from '@custom-types/orders-ws.types';
-import { OnGatewayConnection, OnGatewayDisconnect, WebSocketGateway, WebSocketServer } from '@nestjs/websockets';
-import { Logger } from '@nestjs/common';
-import { Server, Socket } from 'socket.io';
+import { Injectable, Logger } from '@nestjs/common';
+import { WebSocket, WebSocketServer } from 'ws';
 
-@WebSocketGateway({ cors: { origin: '*' } })
-export class OrdersGateway implements OnGatewayConnection, OnGatewayDisconnect {
+@Injectable()
+export class OrdersGateway {
   private readonly logger = new Logger(OrdersGateway.name);
-
-  @WebSocketServer() server: Server;
+  private server: WebSocketServer | null = null;
 
   connectedClients = 0;
 
   private statsProvider: (() => OrdersStatsPayload) | null = null;
 
+  setServer(wss: WebSocketServer) {
+    this.server = wss;
+  }
+
   registerStatsProvider(provider: () => OrdersStatsPayload) {
     this.statsProvider = provider;
   }
 
-  handleConnection(_client: Socket) {
+  handleConnection() {
     this.connectedClients++;
     this.logger.log(`Client connected (total: ${this.connectedClients})`);
     this.broadcastStats();
   }
 
-  handleDisconnect(_client: Socket) {
+  handleDisconnect() {
     this.connectedClients--;
     this.logger.log(`Client disconnected (total: ${this.connectedClients})`);
     this.broadcastStats();
   }
 
   emitProfitableOrders(orders: ProfitableOrders[]) {
-    this.server.emit(ORDERS_WS_EVENTS.PROFITABLE_ORDERS, orders);
+    this.broadcast(ORDERS_WS_EVENTS.PROFITABLE_ORDERS, orders);
   }
 
   broadcastStats() {
     if (!this.statsProvider) return;
     const stats = this.statsProvider();
-    this.server.emit(ORDERS_WS_EVENTS.STATS, stats);
+    this.broadcast(ORDERS_WS_EVENTS.STATS, stats);
+  }
+
+  private broadcast(event: string, data: unknown) {
+    if (!this.server) return;
+    const message = JSON.stringify({ event, data });
+    this.server.clients.forEach((client) => {
+      if (client.readyState === WebSocket.OPEN) {
+        client.send(message);
+      }
+    });
   }
 }
