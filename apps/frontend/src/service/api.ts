@@ -3,6 +3,16 @@ import { ProfitableOrders } from "../@types/AOData";
 import { AvalonState } from "../@types/avalon.types";
 import { ClearDatabaseResponse } from "../@types/api";
 import { BACKEND_URL } from "./consts";
+import { getAuthToken } from "./auth";
+
+// Add auth token to every request
+axios.interceptors.request.use((config) => {
+  const token = getAuthToken();
+  if (token) {
+    config.headers['X-Auth-Token'] = token;
+  }
+  return config;
+});
 
 const allOrders = () => {
   const response = axios.get<ProfitableOrders[]>(`${BACKEND_URL}/orders/profitable`);

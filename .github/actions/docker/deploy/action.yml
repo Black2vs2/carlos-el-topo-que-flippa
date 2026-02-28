@@ -1,0 +1,42 @@
+name: Docker Compose Deploy
+description: Login to registry, pull images, and bring up the compose stack
+
+inputs:
+  REGISTRY_URL:
+    description: Container registry URL (e.g. ghcr.io)
+    required: true
+  PROJECT_NAME:
+    description: Docker Compose project name (stack name in Portainer)
+    required: true
+  DOCKER_COMPOSE_PATH:
+    description: Path to docker-compose file relative to repo root
+    required: true
+  GITHUB_TOKEN:
+    description: GitHub token for registry authentication
+    required: true
+
+runs:
+  using: composite
+  steps:
+    - name: Login to registry
+      uses: docker/login-action@v3
+      with:
+        registry: ${{ inputs.REGISTRY_URL }}
+        username: ${{ github.actor }}
+        password: ${{ inputs.GITHUB_TOKEN }}
+
+    - name: Pull images
+      shell: sh
+      run: >
+        docker compose
+        --project-name ${{ inputs.PROJECT_NAME }}
+        -f ${{ inputs.DOCKER_COMPOSE_PATH }}
+        pull
+
+    - name: Start stack
+      shell: sh
+      run: >
+        docker compose
+        --project-name ${{ inputs.PROJECT_NAME }}
+        -f ${{ inputs.DOCKER_COMPOSE_PATH }}
+        up --build --remove-orphans --force-recreate -d

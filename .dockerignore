@@ -1,0 +1,13 @@
+node_modules
+dist
+.git
+.github
+.nx
+.vscode
+.claude
+*.md
+data
+*.db
+*.db-wal
+*.db-shm
+apps/albiondata-client

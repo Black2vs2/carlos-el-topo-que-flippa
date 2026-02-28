@@ -1,0 +1,31 @@
+name: aoflip-production
+
+services:
+  app:
+    image: ${APP_IMAGE_TAG:-ghcr.io/lucagiacomo/aoflip:production}
+    container_name: aoflip-production-app
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      PORT: "3000"
+      AUTH_TOKEN: ${AUTH_TOKEN}
+    volumes:
+      - sqlite-data:/app/data
+    networks:
+      - web
+    labels:
+      - 'traefik.enable=true'
+      - 'traefik.docker.network=web'
+      - 'traefik.http.routers.aoflip.rule=Host(`aoflip.im-ei.it`)'
+      - 'traefik.http.routers.aoflip.entrypoints=websecure'
+      - 'traefik.http.routers.aoflip.tls=true'
+      - 'traefik.http.routers.aoflip.tls.certresolver=cf'
+      - 'traefik.http.services.aoflip.loadbalancer.server.port=3000'
+
+volumes:
+  sqlite-data:
+    driver: local
+
+networks:
+  web:
+    external: true

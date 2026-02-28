@@ -37,6 +37,10 @@ func (u *httpUploader) sendToIngest(body []byte, topic string, state *albionStat
 
 	req.Header.Set("Content-Type", "application/json")
 
+	if ConfigGlobal.IngestAuthToken != "" {
+		req.Header.Set("X-Auth-Token", ConfigGlobal.IngestAuthToken)
+	}
+
 	resp, err := client.Do(req)
 	if err != nil {
 		log.Errorf("Error while sending ingest with data: %v", err)

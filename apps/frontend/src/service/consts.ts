@@ -10,4 +10,4 @@ export const QUALITIES_COLORS = [
   "rgba(255, 238, 134, 1)",
 ];
 
-export const BACKEND_URL = "https://4zj77q6f-3000.euw.devtunnels.ms";
+export const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || "";

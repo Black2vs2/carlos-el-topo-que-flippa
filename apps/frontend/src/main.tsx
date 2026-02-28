@@ -9,6 +9,10 @@ import "@fontsource/roboto/400.css";
 import "@fontsource/roboto/500.css";
 import "@fontsource/roboto/700.css";
 import App from "./App";
+import { initAuth } from "./service/auth";
+
+// Extract token from URL and persist to localStorage before anything else
+initAuth();
 
 const queryClient = new QueryClient();
 

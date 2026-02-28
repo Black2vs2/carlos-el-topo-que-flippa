@@ -64,6 +64,7 @@ type config struct {
 	OfflinePath                    string
 	RecordPath                     string
 	PublicIngestBaseUrls            string
+	IngestAuthToken                string
 	NoCPULimit                     bool
 	PrintVersion                   bool
 	UpdateGithubOwner              string
@@ -226,6 +227,13 @@ func (config *config) setupCommonFlags() {
 		"i",
 		"http://localhost:3000/orders",
 		"Base URL to send PUBLIC data to, can be 'nats://', 'http://', 'https://' or 'noop' and can have multiple uploaders. Comma separated.",
+	)
+
+	flag.StringVar(
+		&config.IngestAuthToken,
+		"token",
+		"",
+		"Auth token for the ingest API. Sent as X-Auth-Token header.",
 	)
 
 	flag.StringVar(
